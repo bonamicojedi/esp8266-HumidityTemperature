@@ -17,7 +17,7 @@ const Sequelize = require("sequelize");
 // })
 
 const sequelize = new Sequelize(
-  "postgres://host:xHLPnGS334OMHn8dU9WAykklYV8tV3Oy@dpg-cjsfame3m8ac73ckaegg-a.oregon-postgres.render.com/esp8266?ssl=true"
+  "postgres://bancoredis_user:4Sdso3dbzNm0Cre2BEyzYk6Bs8MXfDzD@dpg-ck1qi3vhdsdc73efvscg-a.oregon-postgres.render.com/bancoredis?ssl=true"
 );
 
 sequelize

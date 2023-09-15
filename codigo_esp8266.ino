@@ -1,18 +1,22 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include <SimpleDHT.h>
 
 // WiFi - Coloque aqui suas configurações de WI-FI
-const char ssid[] = "nomedarede";
-const char psw[] = "senhadarede";
+const char ssid[] = "Rede2004";
+const char psw[] = "victin17";
 
 // Site remoto - Coloque aqui os dados do site que vai receber a requisição GET
-const char http_site[] = "ipdamaquinahost";
-const int http_port = 8081;
+const char http_site[] = "server-esp8266.onrender.com";
+const int http_port = 443;
 const char http_path[] = "/cadastrar";
 
 // Variáveis globais
-WiFiClient client;
-IPAddress server(192, 168, 201, 228);  // Endereço IP do servidor - http_site
+
+unsigned long previousMillis = 0;
+const long interval = 5000;
+
+IPAddress server(216, 24, 57, 253);  // Endereço IP do servidor - http_site
 int pinDHT11 = D0;
 SimpleDHT11 dht11;
 
@@ -33,44 +37,66 @@ void setup() {
 }
 
 void loop() {
+  unsigned long currentMillis = millis();
 
-  // Leitura do sensor DHT11
-  delay(3000);  // delay entre as leituras
-  byte temp = 0;
-  byte humid = 0;
-  if (dht11.read(pinDHT11, &temp, &humid, NULL)) {
-    Serial.print("Falha na leitura do sensor.");
-    return;
-  }
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
 
-  Serial.println("Gravando dados no BD: ");
-  Serial.print((int)temp);
-  Serial.print(" *C, ");
-  Serial.print((int)humid);
-  Serial.println(" %");
+    byte temp = 0;
+    byte humid = 0;
+    if (dht11.read(pinDHT11, &temp, &humid, NULL)) {
+      Serial.println("Falha na leitura do sensor.");
+      return;
+    }
 
-  // Envio dos dados do sensor para o servidor via GET
-  if (!getPage((int)temp, (int)humid)) {
-    Serial.println("GET request failed");
+    Serial.println("Gravando dados no BD: ");
+    Serial.print((int)temp);
+    Serial.print(" *C, ");
+    Serial.print((int)humid);
+    Serial.println(" %");
+
+    if (!sendDataToServer((int)temp, (int)humid)) {
+      Serial.println("GET request failed");
+    }
   }
 }
 
-// Executa o HTTP GET request no site remoto
-bool getPage(int temp, int humid) {
-  if (!client.connect(server, http_port)) {
-    Serial.println("Falha na conexão com o site");
-    return false;
-  }
-  String http_path =+ "/" + String(temp) + "/" + String(humid);  // Parâmetros com as leituras
 
-  client.print(String("GET /cadastrar/") + (temp) +"/"+(humid)+
+bool sendDataToServer(int temp, int humid) {
+  WiFiClientSecure client;
+  client.setInsecure();
 
-                      " HTTP/1.1\r\n" + "Host: " + http_site + "\r\n" + "Connection: close\r\n\r\n");
+  String url = "https://" + String(http_site) + http_path + "/" + String(temp) + "/" + String(humid);
 
-  // Informações de retorno do servidor para debug
-  while (client.available()) {
-    String line = client.readStringUntil('\r');
-    Serial.print(line);
-  }
-  return true;
+  Serial.println("fazendo request");
+  Serial.println(url);
+
+
+  if (client.connect(http_site, http_port)) {
+    Serial.println("conectado ao cliente");
+    //client.print(String("GET ") + url + " HTTP/1.1\r\n" + "Host: " + http_site + "\r\n" + "Connection: close\r\n\r\n");
+    client.print(String("GET /cadastrar/") + (temp) +"/"+(humid)+ " HTTP/1.1\r\n" + "Host: " + http_site + "\r\n" + "Connection: close\r\n\r\n");
+
+    while (client.connected()) {
+      Serial.println("esperando por resposta do servidor");
+      String line = client.readStringUntil('\n');
+      if (line == "\r") {
+        break;
+      }
+    }
+
+    while (client.available()) {
+      Serial.println("esperando resto da resposta");
+      String line = client.readStringUntil('\n');
+      Serial.println(line);
+    }
+
+    Serial.println("concluído");
+
+    client.stop();
+    return true;
+  } 
+    
+  Serial.println("Falha na conexão com o servidor");
+  return false;
 }

@@ -3,8 +3,8 @@
 #include <SimpleDHT.h>
 
 // WiFi - Coloque aqui suas configurações de WI-FI
-const char ssid[] = "S20Bona";
-const char psw[] = "123abc123";
+const char ssid[] = "Fatec111";
+const char psw[] = "123654789";
 
 // Site remoto - Coloque aqui os dados do site que vai receber a requisição GET
 const char http_site[] = "server-esp8266.onrender.com";

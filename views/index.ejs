@@ -1,36 +1,56 @@
-const ctx = document.getElementById("sensorChart").getContext("2d");
-const data = {
-  labels: Array.from({ length: 24 }, (_, i) => `${i}`), // Gere rótulos de "0" a "23"
-  datasets: [
-    {
-      label: "Temperatura",
-      data: [], // Inicialize os dados do gráfico com um array vazio
-      borderColor: "red",
-      backgroundColor: "rgba(255, 0, 0, 0.2)",
-    },
-    {
-      label: "Umidade",
-      data: [], // Inicialize os dados do gráfico com um array vazio
-      borderColor: "blue",
-      backgroundColor: "rgba(0, 0, 255, 0.2)",
-    },
-  ],
-};
-const config = {
-  type: "line",
-  data: data,
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Sensor</title>
+  <!-- Inclua os arquivos CSS e JavaScript necessários para o Chart.js -->
+  <script src="https://cdnjsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Gráfico de Sensor</h1>
+  <canvas id="sensorChart" width="400" height="200"></canvas>
 
-// Inicializa o gráfico
-new Chart(ctx, config);
+  <script>
+    const ctx = document.getElementById("sensorChart").getContext("2d");
+    const data = {
+      labels: Array.from({ length: 24 }, (_, i) => `${i}`), // Gere rótulos de "0" a "23"
+      datasets: [
+        {
+          label: "Temperatura",
+          data: [], // Inicialize os dados do gráfico com um array vazio
+          borderColor: "red",
+          backgroundColor: "rgba(255, 0, 0, 0.2)",
+        },
+        {
+          label: "Umidade",
+          data: [], // Inicialize os dados do gráfico com um array vazio
+          borderColor: "blue",
+          backgroundColor: "rgba(0, 0, 255, 0.2)",
+        },
+      ],
+    };
+    const config = {
+      type: "line",
+      data: data,
+    };
 
-// Cria um loop assíncrono que atualiza o gráfico a cada 60 minutos
-setInterval(() => {
-  // Atualiza os dados do gráfico
-  const newData = formattedData.filter((entry) => entry.hour >= new Date().getHours());
-  data.datasets[0].data = newData.map((entry) => entry.temperatura);
-  data.datasets[1].data = newData.map((entry) => entry.umidade);
+    // Inicializa o gráfico
+    new Chart(ctx, config);
 
-  // Atualiza o gráfico
-  new Chart(ctx, config);
-}, 60 * 1000);
+    // Cria um array de dados
+    const formattedData = <%- sensorsData %>;
+
+    // Cria um loop assíncrono que atualiza o gráfico a cada 60 minutos
+    setInterval(() => {
+      // Atualiza os dados do gráfico
+      const newData = formattedData.filter((entry) => entry.hour >= new Date().getHours());
+      data.datasets[0].data = newData.map((entry) => entry.temperatura);
+      data.datasets[1].data = newData.map((entry) => entry.umidade);
+
+      // Atualiza o gráfico
+      new Chart(ctx, config);
+    }, 60 * 1000);
+  </script>
+</body>
+</html>

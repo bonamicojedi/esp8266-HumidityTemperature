@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gráfico de Sensor</title>
   <!-- Inclua os arquivos CSS e JavaScript necessários para o Chart.js -->
-  <script src="https://cdn.js.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>Gráfico de Sensor</h1>
@@ -21,40 +21,27 @@
 
     const ctx = document.getElementById("sensorChart").getContext("2d");
     const data = {
-      labels: Array.from({ length: 24 }, (_, i) => `${i}`), // Gere rótulos de "0" a "23"
-      datasets: [
-        {
-          label: "Temperatura",
-          data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
-          borderColor: "red",
-          backgroundColor: "rgba(255, 0, 0, 0.2)",
-        },
-        {
-          label: "Umidade",
-          data: formattedData.map((entry) => entry.umidade), // Dados de umidade
-          borderColor: "blue",
-          backgroundColor: "rgba(0, 0, 255, 0.2)",
-        },
-      ],
-    };
+    labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
+    datasets: [
+      {
+        label: "Temperatura",
+        data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
+        borderColor: "red",
+        backgroundColor: "rgba(255, 0, 0, 0.2)",
+      },
+      {
+        label: "Umidade",
+        data: formattedData.map((entry) => entry.umidade), // Dados de umidade
+        borderColor: "blue",
+        backgroundColor: "rgba(0, 0, 255, 0.2)",
+      },
+    ],
+  };
     const config = {
       type: "line",
       data: data,
     };
-
-    // Inicializa o gráfico
     new Chart(ctx, config);
-
-    // Cria um loop assíncrono que atualiza o gráfico a cada 60 minutos
-    setInterval(() => {
-      // Atualiza os dados do gráfico
-      const newData = formattedData.filter((entry) => entry.hour >= new Date().getHours());
-      data.datasets[0].data = newData.map((entry) => entry.temperatura);
-      data.datasets[1].data = newData.map((entry) => entry.umidade);
-
-      // Atualiza o gráfico
-      new Chart(ctx, config);
-    }, 60 * 1000);
   </script>
 </body>
 </html>

@@ -9,6 +9,16 @@
 </head>
 <body>
   <h1>Gráfico de Sensor</h1>
+  <canvas id="sensorChart" width="400" height="200"></canvas>
+
+  <script>
+    const sensorData = <%- sensorsData %>;
+    const formattedData = sensorData.map((sensor) => {
+      const date = new Date(sensor.createdAt);
+      const hour = date.getHours();
+      return { hour, temperatura: sensor.temperatura, umidade: sensor.umidade };
+    });
+
     const ctx = document.getElementById("sensorChart").getContext("2d");
     const data = {
     labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"

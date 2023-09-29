@@ -15,15 +15,47 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
+      const ctx = document.getElementById("sensorChart").getContext("2d");
+      const data = {
+        labels: Array.from({
+          length: 24
+        }, (_, i) => `${i.toString().padStart(2, "0")}h`),
+        datasets: [{
+            label: "Temperatura",
+            data: [], // Inicialmente vazio
+            borderColor: "red",
+            backgroundColor: "rgba(255, 0, 0, 0.2)",
+          },
+          {
+            label: "Umidade",
+            data: [], // Inicialmente vazio
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.2)",
+          },
+        ],
+      };
+
+      const config = {
+        type: "line",
+        data: data,
+      };
+
+      // Crie o gráfico com dados vazios inicialmente
+      const myChart = new Chart(ctx, config);
+
       function fetchDataAndUpdateChart() {
         // Use XMLHttpRequest ou fetch para buscar dados do servidor
         // Exemplo usando XMLHttpRequest:
         const xhr = new XMLHttpRequest();
         xhr.open("GET", "/api/sensor-data", true);
         xhr.onreadystatechange = function() {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            const sensorData = JSON.parse(xhr.responseText);
-            updateChart(sensorData);
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              const sensorData = JSON.parse(xhr.responseText);
+              updateChart(sensorData);
+            } else {
+              console.error("Erro ao buscar dados do servidor.");
+            }
           }
         };
         xhr.send();
@@ -40,44 +72,19 @@
           };
         });
 
-        const ctx = document.getElementById("sensorChart").getContext("2d");
-        const data = {
-          labels: Array.from({
-            length: 24
-          }, (_, i) => `${i.toString().padStart(2, "0")}h`),
-          datasets: [{
-              label: "Temperatura",
-              data: formattedData.map((entry) => entry.temperatura),
-              borderColor: "red",
-              backgroundColor: "rgba(255, 0, 0, 0.2)",
-            },
-            {
-              label: "Umidade",
-              data: formattedData.map((entry) => entry.umidade),
-              borderColor: "blue",
-              backgroundColor: "rgba(0, 0, 255, 0.2)",
-            },
-          ],
-        };
+        // Atualize os dados do gráfico
+        myChart.data.datasets[0].data = formattedData.map(entry => entry.temperatura);
+        myChart.data.datasets[1].data = formattedData.map(entry => entry.umidade);
 
-        const config = {
-          type: "line",
-          data: data,
-        };
+        // Atualize o rótulo do tempo (opcional, dependendo do seu caso de uso)
+        myChart.data.labels = formattedData.map(entry => entry.hour + 'h');
 
-        // Verifica se o gráfico já foi criado, se não, cria um novo gráfico.
-        if (window.myChart) {
-          window.myChart.data = data;
-          window.myChart.update();
-        } else {
-          window.myChart = new Chart(ctx, config);
-        }
+        // Atualize o gráfico
+        myChart.update();
       }
 
-      // Buscar e atualizar os dados do gráfico inicialmente
-      fetchDataAndUpdateChart();
-
       // Atualizar os dados do gráfico a cada hora
+      fetchDataAndUpdateChart(); // Chame a função para buscar e exibir os dados inicialmente
       setInterval(fetchDataAndUpdateChart, 3600000); // 1 hora = 3600000 milissegundos
     });
   </script>

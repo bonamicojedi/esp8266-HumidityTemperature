@@ -24,7 +24,15 @@
 
       const ctx = document.getElementById("sensorChart").getContext("2d");
       const data = {
-        labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
+        labels: [
+          "00h",
+          "01h",
+          "02h",
+          "03h",
+          ...
+          "22h",
+          "23h",
+        ], // Gere rótulos de "00h" a "23h"
         datasets: [
           {
             label: "Temperatura",

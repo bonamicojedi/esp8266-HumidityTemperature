@@ -19,29 +19,46 @@
       return { hour, temperatura: sensor.temperatura, umidade: sensor.umidade };
     });
 
+    // Obtenha os dados do sensor do banco de dados
+    const initialData = fetch("/api/sensor").then((response) => response.json());
+
+    // Inicialize o gráfico com os dados do banco de dados
     const ctx = document.getElementById("sensorChart").getContext("2d");
     const data = {
-    labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
-    datasets: [
-      {
-        label: "Temperatura",
-        data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
-        borderColor: "red",
-        backgroundColor: "rgba(255, 0, 0, 0.2)",
-      },
-      {
-        label: "Umidade",
-        data: formattedData.map((entry) => entry.umidade), // Dados de umidade
-        borderColor: "blue",
-        backgroundColor: "rgba(0, 0, 255, 0.2)",
-      },
-    ],
-  };
+      labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
+      datasets: [
+        {
+          label: "Temperatura",
+          data: initialData.map((sensor) => sensor.temperatura), // Dados de temperatura
+          borderColor: "red",
+          backgroundColor: "rgba(255, 0, 0, 0.2)",
+        },
+        {
+          label: "Umidade",
+          data: initialData.map((sensor) => sensor.umidade), // Dados de umidade
+          borderColor: "blue",
+          backgroundColor: "rgba(0, 0, 255, 0.2)",
+        },
+      ],
+    };
     const config = {
       type: "line",
       data: data,
     };
-    new Chart(ctx, config);
+    const chart = new Chart(ctx, config);
+
+    // Atualize o gráfico a cada hora
+    setInterval(() => {
+      // Obtenha os dados mais recentes do sensor
+      const updatedData = fetch("/api/sensor").then((response) => response.json());
+
+      // Atualize os dados do gráfico
+      data.datasets[0].data = updatedData.map((sensor) => sensor.temperatura);
+      data.datasets[1].data = updatedData.map((sensor) => sensor.umidade);
+
+      // Atualize o gráfico
+      chart.update(data);
+    }, 3600000); // 3600000ms = 1h
   </script>
 </body>
 </html>

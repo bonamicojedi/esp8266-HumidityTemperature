@@ -6,67 +6,32 @@
   <title>Gráfico de Sensor</title>
   <!-- Inclua os arquivos CSS e JavaScript necessários para o Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Inclua o adaptador de data -->
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
   <h1>Gráfico de Sensor</h1>
-  <canvas id="sensorChart" width="400" height="200"></canvas>
-
-  <script>
-    function updateChart() {
-      const sensorData = <%- sensorsData %>;
-      const formattedData = sensorData.map((sensor) => {
-        const date = new Date(sensor.createdAt);
-        const hour = date.getHours();
-        return { hour, temperatura: sensor.temperatura, umidade: sensor.umidade };
-      });
-
-      const ctx = document.getElementById("sensorChart").getContext("2d");
-      const data = {
-        labels: [
-          "00h",
-          "01h",
-          "02h",
-          "03h",
-          ...
-          "22h",
-          "23h",
-        ], // Gere rótulos de "00h" a "23h"
-        datasets: [
-          {
-            label: "Temperatura",
-            data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
-            borderColor: "red",
-            backgroundColor: "rgba(255, 0, 0, 0.2)",
-          },
-          {
-            label: "Umidade",
-            data: formattedData.map((entry) => entry.umidade), // Dados de umidade
-            borderColor: "blue",
-            backgroundColor: "rgba(0, 0, 255, 0.2)",
-          },
-        ],
-      };
-      const config = {
-        type: "line",
-        data: data,
-        options: {
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: 'hour'
-              }
-            }
-          }
-        }
-      };
-      new Chart(ctx, config);
-    }
-
-    updateChart(); // Atualize o gráfico imediatamente ao carregar a página
-    setInterval(updateChart, 1 * 1 * 1000); // Atualize o gráfico a cada 60 minutos
+    const ctx = document.getElementById("sensorChart").getContext("2d");
+    const data = {
+    labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
+    datasets: [
+      {
+        label: "Temperatura",
+        data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
+        borderColor: "red",
+        backgroundColor: "rgba(255, 0, 0, 0.2)",
+      },
+      {
+        label: "Umidade",
+        data: formattedData.map((entry) => entry.umidade), // Dados de umidade
+        borderColor: "blue",
+        backgroundColor: "rgba(0, 0, 255, 0.2)",
+      },
+    ],
+  };
+    const config = {
+      type: "line",
+      data: data,
+    };
+    new Chart(ctx, config);
   </script>
 </body>
 </html>

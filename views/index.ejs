@@ -20,7 +20,7 @@
     });
 
     // Obtenha os dados do sensor do banco de dados
-    const initialData = fetch("/api/sensor").then((response) => response.json());
+    const initialData = await fetch("/api/sensor");
 
     // Verifique se os dados do banco de dados estão vazios
     if (initialData.length === 0) {
@@ -64,7 +64,7 @@
 
       // Atualize o gráfico
       chart.update(data);
-    }, 10000); // 3600000ms = 1h
+    }, 3600000); // 3600000ms = 1h
   </script>
 </body>
 </html>

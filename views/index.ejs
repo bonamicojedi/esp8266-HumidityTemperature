@@ -47,7 +47,7 @@
         // Use XMLHttpRequest ou fetch para buscar dados do servidor
         // Exemplo usando XMLHttpRequest:
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", "/api/sensor-data", true);
+        xhr.open("GET", "/selectall", true); // Altere este endereço para o endpoint correto
         xhr.onreadystatechange = function() {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -85,7 +85,7 @@
 
       // Atualizar os dados do gráfico a cada hora
       fetchDataAndUpdateChart(); // Chame a função para buscar e exibir os dados inicialmente
-      setInterval(fetchDataAndUpdateChart, 10000); // 1 hora = 3600000 milissegundos
+      setInterval(fetchDataAndUpdateChart, 3600000); // 1 hora = 3600000 milissegundos
     });
   </script>
 </body>

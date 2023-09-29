@@ -76,7 +76,7 @@
         myChart.data.datasets[0].data = formattedData.map(entry => entry.temperatura);
         myChart.data.datasets[1].data = formattedData.map(entry => entry.umidade);
 
-        // Atualize o rótulo do tempo (opcional, dependendo do seu caso de uso)
+        // Atualize o rótulo do tempo
         myChart.data.labels = formattedData.map(entry => entry.hour + 'h');
 
         // Atualize o gráfico

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,41 +8,77 @@
   <!-- Inclua os arquivos CSS e JavaScript necessários para o Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <h1>Gráfico de Sensor</h1>
   <canvas id="sensorChart" width="400" height="200"></canvas>
 
   <script>
-    const sensorData = <%- sensorsData %>;
-    const formattedData = sensorData.map((sensor) => {
-      const date = new Date(sensor.createdAt);
-      const hour = date.getHours();
-      return { hour, temperatura: sensor.temperatura, umidade: sensor.umidade };
-    });
+    function fetchDataAndUpdateChart() {
+      // Use XMLHttpRequest ou fetch para buscar dados do servidor
+      // Exemplo usando XMLHttpRequest:
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "/api/sensor-data", true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const sensorData = JSON.parse(xhr.responseText);
+          updateChart(sensorData);
+        }
+      };
+      xhr.send();
+    }
 
-    const ctx = document.getElementById("sensorChart").getContext("2d");
-    const data = {
-    labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}h`), // Gere rótulos de "00h" a "23h"
-    datasets: [
-      {
-        label: "Temperatura",
-        data: formattedData.map((entry) => entry.temperatura), // Dados de temperatura
-        borderColor: "red",
-        backgroundColor: "rgba(255, 0, 0, 0.2)",
-      },
-      {
-        label: "Umidade",
-        data: formattedData.map((entry) => entry.umidade), // Dados de umidade
-        borderColor: "blue",
-        backgroundColor: "rgba(0, 0, 255, 0.2)",
-      },
-    ],
-  };
-    const config = {
-      type: "line",
-      data: data,
-    };
-    new Chart(ctx, config);
+    function updateChart(sensorData) {
+      const formattedData = sensorData.map((sensor) => {
+        const date = new Date(sensor.createdAt);
+        const hour = date.getHours();
+        return {
+          hour,
+          temperatura: sensor.temperatura,
+          umidade: sensor.umidade
+        };
+      });
+
+      const ctx = document.getElementById("sensorChart").getContext("2d");
+      const data = {
+        labels: Array.from({
+          length: 24
+        }, (_, i) => `${i.toString().padStart(2, "0")}h`),
+        datasets: [{
+            label: "Temperatura",
+            data: formattedData.map((entry) => entry.temperatura),
+            borderColor: "red",
+            backgroundColor: "rgba(255, 0, 0, 0.2)",
+          },
+          {
+            label: "Umidade",
+            data: formattedData.map((entry) => entry.umidade),
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.2)",
+          },
+        ],
+      };
+
+      const config = {
+        type: "line",
+        data: data,
+      };
+
+      // Verifica se o gráfico já foi criado, se não, cria um novo gráfico.
+      if (window.myChart) {
+        window.myChart.data = data;
+        window.myChart.update();
+      } else {
+        window.myChart = new Chart(ctx, config);
+      }
+    }
+
+    // Buscar e atualizar os dados do gráfico inicialmente
+    fetchDataAndUpdateChart();
+
+    // Atualizar os dados do gráfico a cada hora
+    setInterval(fetchDataAndUpdateChart, 3600000); // 1 hora = 3600000 milissegundos
   </script>
 </body>
+
 </html>
